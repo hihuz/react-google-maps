@@ -6,10 +6,10 @@
     "lint": "eslint ./src webpack.config.js",
     "fix-lint": "eslint --fix ./src webpack.config.js",
     "build": "cross-env NODE_ENV=production webpack -p --env.prod",
-    "watch": "yarn build -- --watch",
     "dev": "webpack-dev-server --env.dev",
     "test": "jest",
-    "update-test": "jest -u",
+    "test:update": "jest -u",
+    "test:watch": "yarn test -- -watch",
     "cover": "yarn test -- --coverage"
   },
   "dependencies": {

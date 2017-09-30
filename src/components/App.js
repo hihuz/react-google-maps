@@ -1,18 +1,16 @@
 import React from "react";
 import "../styles/main.css";
+import GoogleMap from "./GoogleMap";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const locations = [
+  {
+    position: {
+      lat: -34.397,
+      lng: 150.644,
+    },
+  },
+];
 
-  render() {
-    return (
-      <div>
-        React App !
-      </div>
-    );
-  }
-}
+const App = () => <GoogleMap locations={locations} />;
 
 export default App;

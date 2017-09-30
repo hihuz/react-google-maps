@@ -9,18 +9,18 @@ module.exports = env => ({
   output: {
     path: path.join(__dirname, "/dist"),
     filename: "bundle.js",
-    publicPath: ""
+    publicPath: "",
   },
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   resolve: {
-    extensions: [".js", ".json"]
+    extensions: [".js", ".json"],
   },
   stats: {
     colors: true,
     reasons: true,
-    chunks: true
+    chunks: true,
   },
   module: {
     rules: [
@@ -28,30 +28,30 @@ module.exports = env => ({
         enforce: "pre",
         test: /\.js$/,
         loader: "eslint-loader",
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.json$/,
-        loader: "json-loader"
+        loader: "json-loader",
       },
       {
         include: path.resolve(__dirname, "src"),
         test: /\.js$/,
-        loader: "babel-loader"
+        loader: "babel-loader",
       },
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
-          use: ["css-loader"]
-        })
-      }
-    ]
+          use: ["css-loader"],
+        }),
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./src/index.html.ejs"
+      template: "./src/index.html.ejs",
     }),
-    new ExtractTextPlugin("main.css")
-  ]
+    new ExtractTextPlugin("main.css"),
+  ],
 });

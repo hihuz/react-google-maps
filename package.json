@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-async-script-loader": "^0.3.0",
+    "react-dom": "^15.5.4",
+    "recompose": "^0.25.1"
   },
   "devDependencies": {
     "babel-core": "^6.23.1",

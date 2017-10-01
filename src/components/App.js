@@ -1,16 +1,7 @@
 import React from "react";
 import "../styles/main.css";
-import GoogleMap from "./GoogleMap";
+import ColissimoMap from "./ColissimoMap";
 
-const locations = [
-  {
-    position: {
-      lat: -34.397,
-      lng: 150.644,
-    },
-  },
-];
-
-const App = () => <GoogleMap locations={locations} />;
+const App = () => <ColissimoMap />;
 
 export default App;

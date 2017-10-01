@@ -1,59 +1,87 @@
 import React, { Component } from "react";
 import EnhanceGoogleMap from "./EnhanceGoogleMap";
 
+const fitMap = ({ map, markers }) => {};
+
 class GoogleMap extends Component {
   constructor() {
     super();
 
     this.state = {
-      mapLoaded: false,
+      loading: true
     };
-
     this.positionMap = this.positionMap.bind(this);
-    this.placeMarkers = this.placeMarkers.bind(this);
+    this.renderMarkers = this.renderMarkers.bind(this);
   }
 
-  componentWillReceiveProps({ isScriptLoaded, isScriptLoadSucceed }) {
-    if (isScriptLoaded && !this.props.isScriptLoaded && isScriptLoadSucceed) {
-      this.map = new google.maps.Map(this.mapEl);
-      this.setState({ mapLoaded: true });
-      this.positionMap(this.props.locations);
-      this.placeMarkers(this.props.locations);
+  positionMap(address) {
+    this.setState(prevState => ({ ...prevState, loading: true }));
+    this.geocoder = new window.google.maps.Geocoder();
+    this.geocoder.geocode({ address }, (results, status) => {
+      if (status === window.google.maps.GeocoderStatus.OK) {
+        const { location } = results[0].geometry;
+        new window.google.maps.Marker({
+          map: this.map,
+          position: location
+        });
+        this.map.setCenter(location);
+        this.setState(prevState => ({ ...prevState, loading: false }));
+      }
+    });
+  }
+
+  renderMarkers() {
+    const { children } = this.props;
+
+    if (!children || !this.props.isScriptLoaded) {
+      return null;
+    }
+
+    return React.Children.map(children, child => {
+      React.cloneElement(child, {
+        map: this.map,
+        google: window.google
+      });
+    });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.isScriptLoaded &&
+      !this.props.isScriptLoaded &&
+      nextProps.isScriptLoadSucceed
+    ) {
+      this.map = new window.google.maps.Map(this.mapEl, {
+        center: { lat: 0, lng: 0 },
+        zoom: 12
+      });
+
+      this.positionMap(nextProps.address);
+    }
+
+    if (nextProps.address !== this.props.address && this.props.isScriptLoaded) {
+      positionMap(nextProps.address);
+      console.log("fooo");
     }
   }
 
-  positionMap(locations) {
-    const bounds = new google.maps.LatLngBounds();
-    locations.forEach(location => {
-      bounds.extend(location.position);
-    });
-
-    this.map.fitBounds(bounds);
-  }
-
-  placeMarkers(locations) {
-    const markers = locations.map(
-      location =>
-        new google.maps.Marker({
-          position: location.position,
-          map: this.map,
-          icon: this.props.markerIcon,
-        }),
-    );
-  }
-
   render() {
+    const mapStyles = {
+      width: "100%",
+      height: "100%",
+      opacity: this.state.loading ? 0 : 1
+    };
     return (
       <div className="google-map">
         <div
           ref={mapEl => {
             this.mapEl = mapEl;
           }}
-          className="google-map__container"
-          style={{ width: "400px", height: "400px" }}
-        />
-
-        {!this.state.mapLoaded && <div className="google-map__loader">Loading...</div>}
+          style={mapStyles}
+        >
+          {this.renderMarkers()}
+          Loading...
+        </div>
       </div>
     );
   }

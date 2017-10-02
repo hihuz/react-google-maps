@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import EnhanceGoogleMap from "./EnhanceGoogleMap";
 
-const fitMap = ({ map, markers }) => {};
-
+// TODO for FC : use react-intl
 class GoogleMap extends Component {
   constructor() {
     super();
@@ -10,17 +9,26 @@ class GoogleMap extends Component {
     this.state = {
       loading: true
     };
-    this.positionMap = this.positionMap.bind(this);
-    this.renderMarkers = this.renderMarkers.bind(this);
+
+    this.mapEl = null;
+    this.map = null;
+    this.mapCenter = null;
+    this.googleMaps = null;
+    this.markers = null;
+
+    // this.positionMap = this.positionMap.bind(this);
+    // this.renderMarkers = this.renderMarkers.bind(this);
+    // this.fitMap = this.fitMap.bind(this);
+    // this.renderMap = this.renderMap.bind(this);
   }
 
   positionMap(address) {
     this.setState(prevState => ({ ...prevState, loading: true }));
-    this.geocoder = new window.google.maps.Geocoder();
+    this.geocoder = new this.googleMaps.Geocoder();
     this.geocoder.geocode({ address }, (results, status) => {
-      if (status === window.google.maps.GeocoderStatus.OK) {
+      if (status === this.googleMaps.GeocoderStatus.OK) {
         const { location } = results[0].geometry;
-        new window.google.maps.Marker({
+        this.mapCenter = new this.googleMaps.Marker({
           map: this.map,
           position: location
         });
@@ -30,38 +38,42 @@ class GoogleMap extends Component {
     });
   }
 
-  renderMarkers() {
-    const { children } = this.props;
-
-    if (!children || !this.props.isScriptLoaded) {
-      return null;
-    }
-
-    return React.Children.map(children, child => {
-      React.cloneElement(child, {
-        map: this.map,
-        google: window.google
-      });
-    });
+  renderMarkers(markers) {
+    this.markers = markers.map(
+      marker =>
+        new this.googleMaps.Marker({
+          map: this.map,
+          position: marker.position
+        })
+    );
   }
 
+  fitMap() {
+    const mapBounds = new this.googleMaps.LatLngBounds();
+    this.markers.forEach(marker => {
+      mapBounds.extend(marker.position);
+    });
+    this.map.fitBounds(mapBounds);
+  }
+
+  renderMap(address, markers) {
+    this.positionMap(address);
+    this.renderMarkers(markers);
+    this.fitMap();
+  }
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.isScriptLoaded &&
-      !this.props.isScriptLoaded &&
-      nextProps.isScriptLoadSucceed
-    ) {
-      this.map = new window.google.maps.Map(this.mapEl, {
+    if (!this.props.googleMaps && nextProps.googleMaps) {
+      this.googleMaps = nextProps.googleMaps;
+      this.map = new this.googleMaps.Map(this.mapEl, {
         center: { lat: 0, lng: 0 },
         zoom: 12
       });
 
-      this.positionMap(nextProps.address);
+      this.renderMap(nextProps.address, nextProps.markers);
     }
 
-    if (nextProps.address !== this.props.address && this.props.isScriptLoaded) {
+    if (nextProps.address !== this.props.address && this.googleMaps) {
       positionMap(nextProps.address);
-      console.log("fooo");
     }
   }
 
@@ -79,7 +91,6 @@ class GoogleMap extends Component {
           }}
           style={mapStyles}
         >
-          {this.renderMarkers()}
           Loading...
         </div>
       </div>
